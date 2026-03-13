@@ -6,6 +6,8 @@ let selectedIds = new Set();
 let sortField = 'pushed_at';
 let sortDir = 'desc';
 let deleteResolve = null;
+let currentPage = 1;
+let perPage = 25;
 
 // ── DOM refs ──
 const $ = (id) => document.getElementById(id);
@@ -168,8 +170,7 @@ const fetchAllRepos = async () => {
 
 // ── Repo role ──
 const getRepoRole = (r) => {
-  if (r.fork) return 'fork';
-  if (r.owner.login === username) return 'owner';
+  if (r.owner.login === username) return r.fork ? 'fork' : 'owner';
   if (r.owner.type === 'Organization') return 'org';
   return 'collaborator';
 };
@@ -214,6 +215,12 @@ const getFilteredRepos = () => {
   });
 };
 
+// ── Filter/sort reset page ──
+const filterAndRender = () => {
+  currentPage = 1;
+  renderTable();
+};
+
 // ── Sorting ──
 const sortBy = (field) => {
   if (sortField === field) {
@@ -222,6 +229,7 @@ const sortBy = (field) => {
     sortField = field;
     sortDir = field === 'name' ? 'asc' : 'desc';
   }
+  currentPage = 1;
   renderTable();
 };
 
@@ -244,9 +252,31 @@ const sortRepos = (list) => {
   });
 };
 
+// ── Pagination helpers ──
+const getTotalPages = (filtered) => Math.max(1, Math.ceil(filtered.length / perPage));
+
+const getPageSlice = (filtered) => {
+  const start = (currentPage - 1) * perPage;
+  return filtered.slice(start, start + perPage);
+};
+
+const changePerPage = (value) => {
+  perPage = parseInt(value);
+  currentPage = 1;
+  renderTable();
+};
+
+const goToPage = (page) => {
+  currentPage = page;
+  renderTable();
+};
+
 // ── Rendering ──
 const renderTable = () => {
   const filtered = sortRepos(getFilteredRepos());
+  const totalPages = getTotalPages(filtered);
+  if (currentPage > totalPages) currentPage = totalPages;
+  const pageItems = getPageSlice(filtered);
   const tbody = $('repoTableBody');
   tbody.innerHTML = '';
 
@@ -255,7 +285,7 @@ const renderTable = () => {
   const sortEl = $(`sort-${sortField}`);
   if (sortEl) sortEl.textContent = sortDir === 'asc' ? '\u25B2' : '\u25BC';
 
-  filtered.forEach((r) => {
+  pageItems.forEach((r) => {
     const checked = selectedIds.has(r.id) ? 'checked' : '';
     const visBadge = r.private
       ? '<span class="inline-block px-2 py-0.5 text-xs font-medium bg-grey-200 text-grey-700 rounded-full">private</span>'
@@ -325,7 +355,68 @@ const renderTable = () => {
     tbody.appendChild(tr);
   });
 
-  $('tableFooter').textContent = `Showing ${filtered.length} of ${repos.length} repos`;
+  // Pagination footer
+  const start = (currentPage - 1) * perPage + 1;
+  const end = Math.min(currentPage * perPage, filtered.length);
+  const rangeText = filtered.length > 0
+    ? `Showing ${start}–${end} of ${filtered.length} repos`
+    : 'No repos match filters';
+
+  let paginationHtml = `
+    <div class="flex flex-wrap items-center justify-between gap-3">
+      <div class="flex items-center gap-3">
+        <span>${rangeText}${filtered.length !== repos.length ? ` (${repos.length} total)` : ''}</span>
+        <span class="text-grey-300">|</span>
+        <span class="flex items-center gap-1">
+          Per page:
+          ${[25, 50, 100].map((n) =>
+            `<button onclick="changePerPage(${n})"
+              class="px-2 py-0.5 rounded text-xs cursor-pointer transition-colors
+                     ${perPage === n
+                       ? 'bg-grey-700 text-white'
+                       : 'bg-grey-100 text-grey-600 hover:bg-grey-200'}">${n}</button>`
+          ).join('')}
+        </span>
+      </div>
+      <div class="flex items-center gap-1">`;
+
+  if (totalPages > 1) {
+    paginationHtml += `
+        <button onclick="goToPage(${currentPage - 1})" ${currentPage === 1 ? 'disabled' : ''}
+          class="px-2 py-1 rounded text-xs cursor-pointer transition-colors
+                 hover:bg-grey-200 disabled:opacity-30 disabled:cursor-not-allowed">&laquo; Prev</button>`;
+
+    // Page numbers with ellipsis
+    const pages = [];
+    for (let i = 1; i <= totalPages; i++) {
+      if (i === 1 || i === totalPages || (i >= currentPage - 1 && i <= currentPage + 1)) {
+        pages.push(i);
+      } else if (pages[pages.length - 1] !== '...') {
+        pages.push('...');
+      }
+    }
+    pages.forEach((p) => {
+      if (p === '...') {
+        paginationHtml += `<span class="px-1 text-grey-400">...</span>`;
+      } else {
+        paginationHtml += `
+          <button onclick="goToPage(${p})"
+            class="px-2 py-1 rounded text-xs cursor-pointer transition-colors
+                   ${p === currentPage
+                     ? 'bg-grey-700 text-white'
+                     : 'hover:bg-grey-200'}">${p}</button>`;
+      }
+    });
+
+    paginationHtml += `
+        <button onclick="goToPage(${currentPage + 1})" ${currentPage === totalPages ? 'disabled' : ''}
+          class="px-2 py-1 rounded text-xs cursor-pointer transition-colors
+                 hover:bg-grey-200 disabled:opacity-30 disabled:cursor-not-allowed">Next &raquo;</button>`;
+  }
+
+  paginationHtml += `</div></div>`;
+  $('tableFooter').innerHTML = paginationHtml;
+
   updateBulkButtons();
   updateSummary();
 };
@@ -378,14 +469,28 @@ const toggleSelect = (id) => {
   updateBulkButtons();
 };
 
-const selectAllVisible = () => {
-  getFilteredRepos().forEach((r) => selectedIds.add(r.id));
+const toggleSelectAll = () => {
+  const filtered = sortRepos(getFilteredRepos());
+  const pageItems = getPageSlice(filtered);
+  const allSelected = pageItems.length > 0 && pageItems.every((r) => selectedIds.has(r.id));
+
+  if (allSelected) {
+    pageItems.forEach((r) => selectedIds.delete(r.id));
+  } else {
+    pageItems.forEach((r) => selectedIds.add(r.id));
+  }
   renderTable();
 };
 
-const deselectAll = () => {
-  selectedIds.clear();
-  renderTable();
+const updateSelectAllCheckbox = () => {
+  const cb = $('selectAllCheckbox');
+  if (!cb) return;
+  const filtered = sortRepos(getFilteredRepos());
+  const pageItems = getPageSlice(filtered);
+  const selectedOnPage = pageItems.filter((r) => selectedIds.has(r.id)).length;
+
+  cb.checked = pageItems.length > 0 && selectedOnPage === pageItems.length;
+  cb.indeterminate = selectedOnPage > 0 && selectedOnPage < pageItems.length;
 };
 
 const updateBulkButtons = () => {
@@ -395,6 +500,7 @@ const updateBulkButtons = () => {
   ['btnPublic', 'btnPrivate', 'btnArchive', 'btnUnarchive', 'btnDelete'].forEach((id) => {
     $(id).disabled = disabled;
   });
+  updateSelectAllCheckbox();
 };
 
 // ── Status display (row overlay) ──
