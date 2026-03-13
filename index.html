@@ -25,10 +25,15 @@
 <body class="bg-grey-50 min-h-screen text-grey-800">
 
   <!-- Header -->
-  <header class="bg-white border-b border-grey-200 shadow-sm">
+  <header class="bg-grey-900 border-b border-grey-700">
     <div class="max-w-7xl mx-auto px-4 py-4 flex items-center justify-between">
-      <h1 class="text-xl font-semibold text-grey-900">GitHub Repo Manager</h1>
-      <span id="userInfo" class="text-sm text-grey-500"></span>
+      <div class="flex items-center gap-3">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-7 w-7 text-white" viewBox="0 0 24 24" fill="currentColor">
+          <path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0024 12c0-6.63-5.37-12-12-12z"/>
+        </svg>
+        <h1 class="text-xl font-semibold text-white">Repo Manager</h1>
+      </div>
+      <span id="userInfo" class="text-sm text-grey-400"></span>
     </div>
   </header>
 
@@ -141,8 +146,14 @@
     </section>
 
     <!-- Auth Section -->
-    <section id="authSection" class="bg-white rounded-lg border border-grey-200 shadow-sm p-6">
-      <h2 class="text-lg font-semibold text-grey-900 mb-4">Connect to GitHub</h2>
+    <section id="authSection" class="bg-gradient-to-br from-grey-800 to-grey-900 rounded-lg shadow-lg p-8 text-white">
+      <div class="flex items-center gap-3 mb-2">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-grey-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1" />
+        </svg>
+        <h2 class="text-lg font-semibold">Connect to GitHub</h2>
+      </div>
+      <p class="text-grey-400 text-sm mb-5">Paste your Personal Access Token to get started. Your token stays in browser memory only.</p>
 
       <div class="flex gap-3">
         <div class="flex-1 relative">
@@ -151,13 +162,13 @@
             type="password"
             placeholder="Paste your token here (ghp_... or github_pat_...)"
             oninput="validatePatInput()"
-            class="w-full px-4 py-2 pr-20 border border-grey-300 rounded-lg text-sm font-mono
-                   focus:outline-none focus:ring-2 focus:ring-grey-400 focus:border-grey-400"
+            class="w-full px-4 py-2.5 pr-20 bg-grey-700 border border-grey-600 rounded-lg text-sm font-mono text-white
+                   placeholder-grey-400 focus:outline-none focus:ring-2 focus:ring-grey-400 focus:border-grey-500"
           />
           <div class="absolute right-2 top-1/2 -translate-y-1/2 flex items-center gap-1">
             <span id="patValidation" class="text-xs"></span>
             <button type="button" onclick="togglePatVisibility()" tabindex="-1"
-              class="p-1 text-grey-400 hover:text-grey-600 cursor-pointer" title="Show/hide token">
+              class="p-1 text-grey-400 hover:text-grey-200 cursor-pointer" title="Show/hide token">
               <svg id="eyeIcon" xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                 <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
                 <path stroke-linecap="round" stroke-linejoin="round" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
@@ -172,15 +183,15 @@
           id="connectBtn"
           onclick="handleConnect()"
           disabled
-          class="px-5 py-2 bg-grey-800 text-white rounded-lg font-medium text-sm
-                 hover:bg-grey-900 focus:outline-none focus:ring-2 focus:ring-grey-500
-                 cursor-pointer transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
+          class="px-5 py-2.5 bg-white text-grey-900 rounded-lg font-medium text-sm
+                 hover:bg-grey-100 focus:outline-none focus:ring-2 focus:ring-grey-400
+                 cursor-pointer transition-all duration-200 disabled:opacity-40 disabled:cursor-not-allowed"
         >
           Connect
         </button>
       </div>
-      <p id="patHint" class="text-xs text-grey-400 mt-2">Tokens start with <span class="font-mono">ghp_</span> (classic) or <span class="font-mono">github_pat_</span> (fine-grained)</p>
-      <p id="authError" class="text-red-600 text-sm mt-2 hidden"></p>
+      <p id="patHint" class="text-xs text-grey-500 mt-3">Tokens start with <span class="font-mono">ghp_</span> (classic) or <span class="font-mono">github_pat_</span> (fine-grained)</p>
+      <p id="authError" class="text-red-400 text-sm mt-2 hidden"></p>
     </section>
 
     <!-- API Log -->
@@ -408,8 +419,8 @@
     </div>
   </main>
 
-  <footer class="max-w-7xl mx-auto px-4 py-6 text-center text-xs text-grey-400">
-    All requests go directly to api.github.com. No data is stored or sent anywhere else.
+  <footer class="max-w-7xl mx-auto px-4 py-8 text-center text-xs text-grey-400">
+    <p>All requests go directly to <span class="font-mono text-grey-500">api.github.com</span>. No data is stored or sent anywhere else.</p>
   </footer>
 
   <script src="js/app.js"></script>

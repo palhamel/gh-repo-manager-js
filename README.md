@@ -2,6 +2,8 @@
 
 A local browser tool for managing all your GitHub repositories in bulk. No server, no build step, no dependencies beyond the GitHub API.
 
+Or use it from here: [GitHub Repo Manager](https://palhamel.github.io/gh-repo-manager-js/)
+
 ## What it does
 
 Open `index.html` in your browser, paste a GitHub Personal Access Token, and get a full overview of every repo connected to your account. From there you can filter, sort, select, and apply bulk actions.

@@ -59,26 +59,26 @@ const validatePatInput = () => {
     el.innerHTML = '';
     btn.disabled = true;
     $('patInput').classList.remove('border-emerald-400', 'border-red-400');
-    $('patInput').classList.add('border-grey-300');
+    $('patInput').classList.add('border-grey-600');
     return;
   }
 
   const match = PAT_PATTERNS.find((p) => val.startsWith(p.prefix));
 
   if (match && val.length >= match.minLen) {
-    el.innerHTML = `<span class="text-emerald-600">${match.label}</span>`;
+    el.innerHTML = `<span class="text-emerald-400">${match.label}</span>`;
     btn.disabled = false;
-    $('patInput').classList.remove('border-grey-300', 'border-red-400');
+    $('patInput').classList.remove('border-grey-600', 'border-red-400');
     $('patInput').classList.add('border-emerald-400');
   } else if (match) {
-    el.innerHTML = `<span class="text-amber-500">Too short</span>`;
+    el.innerHTML = `<span class="text-amber-400">Too short</span>`;
     btn.disabled = true;
-    $('patInput').classList.remove('border-grey-300', 'border-emerald-400');
+    $('patInput').classList.remove('border-grey-600', 'border-emerald-400');
     $('patInput').classList.add('border-red-400');
   } else {
-    el.innerHTML = `<span class="text-red-500">Not a token</span>`;
+    el.innerHTML = `<span class="text-red-400">Not a token</span>`;
     btn.disabled = true;
-    $('patInput').classList.remove('border-grey-300', 'border-emerald-400');
+    $('patInput').classList.remove('border-grey-600', 'border-emerald-400');
     $('patInput').classList.add('border-red-400');
   }
 };
