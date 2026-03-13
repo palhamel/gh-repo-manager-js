@@ -1,0 +1,419 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>GitHub Repo Manager</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            grey: {
+              50: '#f9fafb', 100: '#f3f4f6', 200: '#e5e7eb', 300: '#d1d5db',
+              400: '#9ca3af', 500: '#6b7280', 600: '#4b5563', 700: '#374151',
+              800: '#1f2937', 900: '#111827'
+            }
+          }
+        }
+      }
+    };
+  </script>
+  <link rel="stylesheet" href="css/styles.css">
+</head>
+<body class="bg-grey-50 min-h-screen text-grey-800">
+
+  <!-- Header -->
+  <header class="bg-white border-b border-grey-200 shadow-sm">
+    <div class="max-w-7xl mx-auto px-4 py-4 flex items-center justify-between">
+      <h1 class="text-xl font-semibold text-grey-900">GitHub Repo Manager</h1>
+      <span id="userInfo" class="text-sm text-grey-500"></span>
+    </div>
+  </header>
+
+  <main class="max-w-7xl mx-auto px-4 py-6 space-y-6">
+
+    <!-- About Section -->
+    <section id="aboutSection" class="bg-white rounded-lg border border-grey-200 shadow-sm">
+      <details id="aboutDetails" open>
+        <summary class="px-6 py-4 cursor-pointer hover:bg-grey-50 transition-colors">
+          <span class="text-lg font-semibold text-grey-900">Setup guide &amp; token instructions</span>
+          <span class="text-sm text-grey-400 ml-2">click to toggle</span>
+        </summary>
+        <div class="px-6 pb-6 pt-2">
+      <h3 class="text-sm font-semibold text-grey-800 mb-1">What is this tool?</h3>
+      <p class="text-sm text-grey-600 leading-relaxed mb-4">
+        GitHub Repo Manager lets you browse, filter, and bulk-manage all your GitHub repositories from a single page.
+        You can change visibility (public/private), archive or unarchive repos, and delete repos you no longer need &mdash; all in bulk.
+        Everything runs locally in your browser. No backend, no data stored, no third-party services. The only external calls go to
+        <span class="font-mono text-grey-800">api.github.com</span>.
+      </p>
+
+      <h3 class="text-sm font-semibold text-grey-800 mb-1">What is a Personal Access Token (PAT)?</h3>
+      <p class="text-sm text-grey-600 leading-relaxed mb-3">
+        A PAT is a password-like string that lets applications access GitHub on your behalf without using your actual password.
+        GitHub offers two types. We recommend a <strong>classic token</strong> for this tool &mdash; it's simpler to set up (just two checkboxes),
+        works across all your repos by default, and doesn't require org opt-in. Fine-grained tokens are listed below as an alternative.
+      </p>
+
+      <!-- Classic token instructions -->
+      <div class="bg-white border-2 border-grey-300 rounded-lg p-4 text-sm text-grey-600 mb-3">
+        <p class="font-semibold text-grey-700 mb-2">Recommended: Classic token</p>
+        <ol class="list-decimal list-inside space-y-1 leading-relaxed">
+          <li>Go to <a href="https://github.com/settings/tokens/new" target="_blank" rel="noopener" class="text-grey-900 underline hover:text-grey-700 cursor-pointer">github.com/settings/tokens/new</a></li>
+          <li>In the <strong>Note</strong> field, type a label (e.g. "Repo Manager")</li>
+          <li>Set an <strong>Expiration</strong> date (short-lived recommended)</li>
+          <li>Under <strong>Select scopes</strong>, scroll through the list and check these two:
+            <ul class="list-disc list-inside ml-4 mt-1 space-y-0.5">
+              <li><span class="font-mono bg-grey-200 px-1.5 py-0.5 rounded text-grey-800">repo</span> &mdash; "Full control of private repositories" (near the top)</li>
+              <li><span class="font-mono bg-grey-200 px-1.5 py-0.5 rounded text-grey-800">delete_repo</span> &mdash; "Delete repositories" (further down the list)</li>
+            </ul>
+          </li>
+          <li>Click <strong>Generate token</strong> at the bottom and copy it immediately &mdash; you won't see it again</li>
+        </ol>
+      </div>
+
+      <!-- Fine-grained token instructions -->
+      <details class="bg-grey-50 border border-grey-200 rounded-lg text-sm text-grey-600 mb-3">
+        <summary class="px-4 py-3 cursor-pointer hover:bg-grey-100 transition-colors rounded-lg">
+          <span class="font-semibold text-grey-700">Alternative: Fine-grained token</span>
+          <span class="text-grey-400 ml-1">— more granular control, more steps to configure</span>
+        </summary>
+        <div class="px-4 pb-4 pt-1 space-y-2">
+          <p class="text-grey-500">Some orgs may not support fine-grained tokens yet.</p>
+          <ol class="list-decimal list-inside space-y-1 leading-relaxed">
+            <li>Go to <a href="https://github.com/settings/personal-access-tokens/new" target="_blank" rel="noopener" class="text-grey-900 underline hover:text-grey-700 cursor-pointer">github.com/settings/personal-access-tokens/new</a></li>
+            <li>Set a <strong>Token name</strong> (e.g. "Repo Manager") and optional description</li>
+            <li>Choose a <strong>Resource owner</strong> (your account or an org)</li>
+            <li>Set an <strong>Expiration</strong> date (short-lived recommended)</li>
+            <li>Under <strong>Repository access</strong>, select <strong>All repositories</strong></li>
+            <li>Expand the <strong>Permissions</strong> section, then under <strong>Repository permissions</strong>, set
+              <span class="font-mono bg-grey-200 px-1.5 py-0.5 rounded text-grey-800">Administration</span>
+              to <span class="font-mono bg-grey-200 px-1.5 py-0.5 rounded text-grey-800">Read and write</span>
+            </li>
+            <li>Click <strong>Generate token</strong> and copy it immediately</li>
+          </ol>
+        </div>
+      </details>
+
+      <details class="bg-grey-50 border border-grey-200 rounded-lg text-sm text-grey-600">
+        <summary class="px-4 py-3 cursor-pointer hover:bg-grey-100 transition-colors rounded-lg">
+          <span class="font-semibold text-grey-700">Security &amp; privacy</span>
+          <span class="text-grey-400 ml-1">— how your token is protected</span>
+        </summary>
+        <div class="px-4 pb-4 pt-1 space-y-3">
+          <div>
+            <p class="font-medium text-grey-700 mb-1">Your token is encrypted in transit</p>
+            <p class="text-grey-500 leading-relaxed">
+              All requests go to <span class="font-mono text-grey-700">https://api.github.com</span>.
+              HTTPS (TLS) encrypts the entire request &mdash; including the Authorization header containing your token &mdash;
+              before it leaves your browser. No one between you and GitHub can read it.
+            </p>
+          </div>
+          <div>
+            <p class="font-medium text-grey-700 mb-1">Your token is never stored</p>
+            <p class="text-grey-500 leading-relaxed">
+              The token is held in a JavaScript variable in browser memory only. It is never written to localStorage, cookies, disk,
+              or sent anywhere other than GitHub's API. Refreshing or closing the page clears it completely.
+            </p>
+          </div>
+          <div>
+            <p class="font-medium text-grey-700 mb-1">No third-party calls</p>
+            <p class="text-grey-500 leading-relaxed">
+              This tool makes zero external requests beyond <span class="font-mono text-grey-700">api.github.com</span>.
+              No analytics, no tracking, no telemetry. You can verify this in your browser's Network tab.
+            </p>
+          </div>
+          <div>
+            <p class="font-medium text-grey-700 mb-1">Best practices for staying safe</p>
+            <ul class="text-grey-500 leading-relaxed list-disc list-inside space-y-0.5">
+              <li>Use a short expiration when creating your token (7 or 30 days)</li>
+              <li>Only grant the minimum scopes needed (<span class="font-mono bg-grey-200 px-1 rounded text-grey-700">repo</span> + <span class="font-mono bg-grey-200 px-1 rounded text-grey-700">delete_repo</span>)</li>
+              <li>Revoke the token when you're done at <a href="https://github.com/settings/tokens" target="_blank" rel="noopener" class="text-grey-700 underline hover:text-grey-900 cursor-pointer">github.com/settings/tokens</a></li>
+              <li>Be cautious of browser extensions that could access page variables</li>
+            </ul>
+          </div>
+        </div>
+      </details>
+      </div>
+      </details>
+    </section>
+
+    <!-- Auth Section -->
+    <section id="authSection" class="bg-white rounded-lg border border-grey-200 shadow-sm p-6">
+      <h2 class="text-lg font-semibold text-grey-900 mb-4">Connect to GitHub</h2>
+
+      <div class="flex gap-3">
+        <div class="flex-1 relative">
+          <input
+            id="patInput"
+            type="password"
+            placeholder="Paste your token here (ghp_... or github_pat_...)"
+            oninput="validatePatInput()"
+            class="w-full px-4 py-2 pr-20 border border-grey-300 rounded-lg text-sm font-mono
+                   focus:outline-none focus:ring-2 focus:ring-grey-400 focus:border-grey-400"
+          />
+          <div class="absolute right-2 top-1/2 -translate-y-1/2 flex items-center gap-1">
+            <span id="patValidation" class="text-xs"></span>
+            <button type="button" onclick="togglePatVisibility()" tabindex="-1"
+              class="p-1 text-grey-400 hover:text-grey-600 cursor-pointer" title="Show/hide token">
+              <svg id="eyeIcon" xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                <path stroke-linecap="round" stroke-linejoin="round" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+              </svg>
+              <svg id="eyeOffIcon" xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 hidden" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.542-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.878 9.878L3 3m6.878 6.878L21 21" />
+              </svg>
+            </button>
+          </div>
+        </div>
+        <button
+          id="connectBtn"
+          onclick="handleConnect()"
+          disabled
+          class="px-5 py-2 bg-grey-800 text-white rounded-lg font-medium text-sm
+                 hover:bg-grey-900 focus:outline-none focus:ring-2 focus:ring-grey-500
+                 cursor-pointer transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
+        >
+          Connect
+        </button>
+      </div>
+      <p id="patHint" class="text-xs text-grey-400 mt-2">Tokens start with <span class="font-mono">ghp_</span> (classic) or <span class="font-mono">github_pat_</span> (fine-grained)</p>
+      <p id="authError" class="text-red-600 text-sm mt-2 hidden"></p>
+    </section>
+
+    <!-- API Log -->
+    <section id="apiLogSection" class="hidden">
+      <details class="bg-white rounded-lg border border-grey-200 shadow-sm">
+        <summary class="px-4 py-3 text-sm font-medium text-grey-700 cursor-pointer hover:bg-grey-50">
+          API Request Log
+        </summary>
+        <div id="apiLog" class="px-4 pb-4 max-h-48 overflow-y-auto text-xs font-mono text-grey-600 space-y-1"></div>
+      </details>
+    </section>
+
+    <!-- Loading Progress -->
+    <div id="loadingBar" class="hidden bg-white rounded-lg border border-grey-200 shadow-sm p-4">
+      <div class="flex items-center gap-3">
+        <svg class="animate-spin h-5 w-5 text-grey-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+          <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+          <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"></path>
+        </svg>
+        <span id="loadingText" class="text-sm text-grey-700">Loading repos...</span>
+      </div>
+      <div class="mt-2 w-full bg-grey-200 rounded-full h-1.5">
+        <div id="loadingProgress" class="bg-grey-600 h-1.5 rounded-full transition-all duration-300" style="width: 0%"></div>
+      </div>
+    </div>
+
+    <!-- Repo Manager (hidden until connected) -->
+    <section id="repoManager" class="hidden space-y-4">
+
+      <!-- Filters -->
+      <div class="bg-white rounded-lg border border-grey-200 shadow-sm p-4">
+        <div class="flex items-center justify-between mb-3">
+          <span class="text-xs font-medium text-grey-500 uppercase tracking-wide">Filters</span>
+          <button onclick="$('filterHelp').classList.toggle('hidden')"
+            class="inline-flex items-center gap-1 text-xs text-grey-400 hover:text-grey-600
+                   cursor-pointer transition-colors">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+            How filtering works
+          </button>
+        </div>
+        <div id="filterHelp" class="hidden mb-3 bg-grey-50 border border-grey-200 rounded-lg p-3 text-xs text-grey-600 space-y-2">
+          <p class="font-medium text-grey-700">All filters work together and update results instantly.</p>
+          <ul class="space-y-1 list-disc list-inside">
+            <li><strong>Search</strong> &mdash; type any part of a repo name (e.g. "api" or "old-project")</li>
+            <li><strong>Visibility</strong> &mdash; show only public or private repos</li>
+            <li><strong>Archived</strong> &mdash; show only archived repos, or hide them</li>
+            <li><strong>Role</strong> &mdash; filter by your relationship: repos you own, forked, belong to an org, or collaborate on</li>
+            <li><strong>Created between</strong> &mdash; enter a year in "From", "To", or both to filter by creation date. E.g. type <span class="font-mono bg-grey-200 px-1 rounded">2020</span> in From and <span class="font-mono bg-grey-200 px-1 rounded">2022</span> in To to see repos created in 2020, 2021, or 2022</li>
+          </ul>
+          <p><strong>Tip:</strong> combine filters to narrow results, e.g. "all forked repos from 2020 that are still public". Use <strong>Select all</strong> to check every visible (filtered) repo, then apply a bulk action.</p>
+        </div>
+        <div class="flex flex-wrap gap-3 items-end">
+          <div class="flex-1 min-w-[200px]">
+            <label class="block text-xs font-medium text-grey-500 mb-1">Search repos</label>
+            <input
+              id="searchInput"
+              type="text"
+              placeholder="Filter by name..."
+              oninput="renderTable()"
+              class="w-full px-3 py-2 border border-grey-300 rounded-lg text-sm
+                     focus:outline-none focus:ring-2 focus:ring-grey-400"
+            />
+          </div>
+          <div>
+            <label class="block text-xs font-medium text-grey-500 mb-1">Visibility</label>
+            <select id="filterVisibility" onchange="renderTable()"
+              class="px-3 py-2 border border-grey-300 rounded-lg text-sm bg-white cursor-pointer
+                     focus:outline-none focus:ring-2 focus:ring-grey-400">
+              <option value="all">All</option>
+              <option value="public">Public</option>
+              <option value="private">Private</option>
+            </select>
+          </div>
+          <div>
+            <label class="block text-xs font-medium text-grey-500 mb-1">Archived</label>
+            <select id="filterArchived" onchange="renderTable()"
+              class="px-3 py-2 border border-grey-300 rounded-lg text-sm bg-white cursor-pointer
+                     focus:outline-none focus:ring-2 focus:ring-grey-400">
+              <option value="all">All</option>
+              <option value="archived">Archived</option>
+              <option value="active">Not archived</option>
+            </select>
+          </div>
+          <div>
+            <label class="block text-xs font-medium text-grey-500 mb-1">Role</label>
+            <select id="filterRole" onchange="renderTable()"
+              class="px-3 py-2 border border-grey-300 rounded-lg text-sm bg-white cursor-pointer
+                     focus:outline-none focus:ring-2 focus:ring-grey-400">
+              <option value="all">All</option>
+              <option value="owner">Owner</option>
+              <option value="fork">Fork</option>
+              <option value="org">Organization</option>
+              <option value="collaborator">Collaborator</option>
+            </select>
+          </div>
+          <div>
+            <label class="block text-xs font-medium text-grey-500 mb-1">Created between</label>
+            <div class="flex items-center gap-1">
+              <input id="filterYearFrom" type="number" min="2005" max="2099" placeholder="From"
+                oninput="renderTable()"
+                class="w-20 px-2 py-2 border border-grey-300 rounded-lg text-sm text-center
+                       focus:outline-none focus:ring-2 focus:ring-grey-400" />
+              <span class="text-grey-400 text-sm">&ndash;</span>
+              <input id="filterYearTo" type="number" min="2005" max="2099" placeholder="To"
+                oninput="renderTable()"
+                class="w-20 px-2 py-2 border border-grey-300 rounded-lg text-sm text-center
+                       focus:outline-none focus:ring-2 focus:ring-grey-400" />
+            </div>
+          </div>
+          <div class="flex gap-2">
+            <button onclick="selectAllVisible()" class="px-3 py-2 text-sm border border-grey-300 rounded-lg
+                     hover:bg-grey-100 cursor-pointer transition-colors">Select all</button>
+            <button onclick="deselectAll()" class="px-3 py-2 text-sm border border-grey-300 rounded-lg
+                     hover:bg-grey-100 cursor-pointer transition-colors">Deselect all</button>
+          </div>
+          <button onclick="fetchAllRepos()" class="px-3 py-2 text-sm border border-grey-300 rounded-lg
+                   hover:bg-grey-100 cursor-pointer transition-colors" title="Refresh repo list">
+            Refresh
+          </button>
+        </div>
+      </div>
+
+      <!-- Actions Bar + Summary -->
+      <div class="bg-white rounded-lg border border-grey-200 shadow-sm p-4">
+        <div class="flex flex-wrap items-center justify-between gap-4">
+          <!-- Left: Selection + Bulk Actions -->
+          <div class="flex flex-wrap gap-2 items-center">
+            <span id="selectedCount" class="text-sm text-grey-500 mr-2">0 selected</span>
+            <button onclick="bulkAction('public')" id="btnPublic"
+              class="px-3 py-1.5 text-sm bg-emerald-50 text-emerald-700 border border-emerald-200 rounded-lg
+                     hover:bg-emerald-100 cursor-pointer transition-colors disabled:opacity-40 disabled:cursor-not-allowed" disabled>
+              Make public
+            </button>
+            <button onclick="bulkAction('private')" id="btnPrivate"
+              class="px-3 py-1.5 text-sm bg-grey-100 text-grey-700 border border-grey-300 rounded-lg
+                     hover:bg-grey-200 cursor-pointer transition-colors disabled:opacity-40 disabled:cursor-not-allowed" disabled>
+              Make private
+            </button>
+            <button onclick="bulkAction('archive')" id="btnArchive"
+              class="px-3 py-1.5 text-sm bg-amber-50 text-amber-700 border border-amber-200 rounded-lg
+                     hover:bg-amber-100 cursor-pointer transition-colors disabled:opacity-40 disabled:cursor-not-allowed" disabled>
+              Archive
+            </button>
+            <button onclick="bulkAction('unarchive')" id="btnUnarchive"
+              class="px-3 py-1.5 text-sm bg-blue-50 text-blue-700 border border-blue-200 rounded-lg
+                     hover:bg-blue-100 cursor-pointer transition-colors disabled:opacity-40 disabled:cursor-not-allowed" disabled>
+              Unarchive
+            </button>
+            <button onclick="bulkAction('delete')" id="btnDelete"
+              class="px-3 py-1.5 text-sm bg-red-50 text-red-700 border border-red-200 rounded-lg
+                     hover:bg-red-100 cursor-pointer transition-colors disabled:opacity-40 disabled:cursor-not-allowed" disabled>
+              Delete
+            </button>
+          </div>
+          <!-- Right: Repo Summary -->
+          <div id="repoSummary" class="flex flex-wrap gap-x-4 gap-y-1 text-xs text-grey-500"></div>
+        </div>
+      </div>
+
+      <!-- Table -->
+      <div class="bg-white rounded-lg border border-grey-200 shadow-sm overflow-hidden">
+        <div class="overflow-x-auto">
+          <table class="w-full text-sm">
+            <thead class="bg-grey-50 border-b border-grey-200">
+              <tr>
+                <th class="w-10 px-4 py-3"></th>
+                <th class="text-left px-4 py-3 font-medium text-grey-600 cursor-pointer hover:text-grey-900"
+                    onclick="sortBy('name')">Name <span id="sort-name" class="text-grey-400"></span></th>
+                <th class="text-left px-4 py-3 font-medium text-grey-600 cursor-pointer hover:text-grey-900"
+                    onclick="sortBy('visibility')">Visibility <span id="sort-visibility" class="text-grey-400"></span></th>
+                <th class="text-left px-4 py-3 font-medium text-grey-600 cursor-pointer hover:text-grey-900"
+                    onclick="sortBy('archived')">Archived <span id="sort-archived" class="text-grey-400"></span></th>
+                <th class="text-left px-4 py-3 font-medium text-grey-600 cursor-pointer hover:text-grey-900"
+                    onclick="sortBy('role')">Role <span id="sort-role" class="text-grey-400"></span></th>
+                <th class="text-left px-4 py-3 font-medium text-grey-600 cursor-pointer hover:text-grey-900"
+                    onclick="sortBy('created_at')">Created <span id="sort-created_at" class="text-grey-400"></span></th>
+                <th class="text-left px-4 py-3 font-medium text-grey-600 cursor-pointer hover:text-grey-900"
+                    onclick="sortBy('pushed_at')">Last pushed <span id="sort-pushed_at" class="text-grey-400"></span></th>
+                <th class="text-left px-4 py-3 font-medium text-grey-600 cursor-pointer hover:text-grey-900"
+                    onclick="sortBy('stars')">Stars <span id="sort-stars" class="text-grey-400"></span></th>
+                <th class="text-left px-4 py-3 font-medium text-grey-600">In use?</th>
+              </tr>
+            </thead>
+            <tbody id="repoTableBody" class="divide-y divide-grey-100"></tbody>
+          </table>
+        </div>
+        <div id="tableFooter" class="px-4 py-3 bg-grey-50 border-t border-grey-200 text-sm text-grey-500"></div>
+      </div>
+    </section>
+
+    <!-- Delete Confirmation Modal -->
+    <div id="deleteModal" class="hidden fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+      <div class="bg-white rounded-lg shadow-xl max-w-lg w-full p-6 space-y-4">
+        <h3 class="text-lg font-semibold text-grey-900">Confirm deletion</h3>
+        <p id="deleteModalText" class="text-sm text-grey-600"></p>
+        <div id="deleteWarnings" class="hidden"></div>
+        <div id="deleteCheckingDeploys" class="hidden flex items-center gap-2 text-sm text-grey-500">
+          <svg class="animate-spin h-4 w-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"></path>
+          </svg>
+          Checking for deployments...
+        </div>
+        <div class="bg-red-50 border border-red-200 rounded-lg p-3 text-sm text-red-700">
+          This action is permanent and cannot be undone.
+        </div>
+        <div>
+          <label class="block text-sm font-medium text-grey-700 mb-1">Type <span class="font-mono font-bold">DELETE</span> to confirm</label>
+          <input id="deleteConfirmInput" type="text" placeholder="DELETE"
+            class="w-full px-3 py-2 border border-grey-300 rounded-lg text-sm font-mono
+                   focus:outline-none focus:ring-2 focus:ring-red-400"
+          />
+        </div>
+        <div class="flex justify-end gap-3">
+          <button onclick="closeDeleteModal()"
+            class="px-4 py-2 text-sm border border-grey-300 rounded-lg hover:bg-grey-100
+                   cursor-pointer transition-colors">Cancel</button>
+          <button id="deleteConfirmBtn" onclick="confirmDelete()"
+            class="px-4 py-2 text-sm bg-red-600 text-white rounded-lg hover:bg-red-700
+                   cursor-pointer transition-colors disabled:opacity-40 disabled:cursor-not-allowed" disabled>
+            Delete repos
+          </button>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <footer class="max-w-7xl mx-auto px-4 py-6 text-center text-xs text-grey-400">
+    All requests go directly to api.github.com. No data is stored or sent anywhere else.
+  </footer>
+
+  <script src="js/app.js"></script>
+</body>
+</html>
